@@ -74,19 +74,21 @@ bool port_connect (char *port_name)
     struct termios settings;
     bool using_tty_device;
     int retval;
+    unsigned int i;
+    char tPath[32];
 #endif
 
     if (NULL == port_name || port_name[0] == '\0') {
         dbg(LOG_ERROR, "NULL port name");
         dbg(LOG_ERROR, "Should be a COM port on windows (\\.\\COMx)\n"
                        "or a device file on Linux (/dev/ttyUSB0)");
-        return false;
+        //return false;
     }
 	com_port.port_name = port_name;
 
     /* Close any existing open port */
-    if (com_port.port_fd != INVALID_PORT_HANDLE_VALUE)
-        port_disconnect ();
+    //if (com_port.port_fd != INVALID_PORT_HANDLE_VALUE)
+        //port_disconnect ();
 
 #ifdef WINDOWSPC
 	com_port.port_fd = CreateFileA(com_port.port_name,
@@ -129,22 +131,50 @@ bool port_connect (char *port_name)
 
 #else
 
-    if (strstr(port_name, "/dev/ttyS") || strstr(port_name, "/dev/ttyHSL"))
-        com_port.transport_medium = USING_UART;
-    else if (strstr(port_name, "sdio"))
-        com_port.transport_medium = USING_SDIO;
+    //if (strstr(port_name, "/dev/ttyS") || strstr(port_name, "/dev/ttyHSL"))
+    //    com_port.transport_medium = USING_UART;
+    //else if (strstr(port_name, "sdio"))
+     //   com_port.transport_medium = USING_SDIO;
 
     using_tty_device = (strspn(port_name, "/dev/tty") == strlen("/dev/tty"));
 
     // Opening the com port
     // Change for Android port - Opening in O_SYNC mode since tcdrain() is not supported
-    if (USING_SDIO == com_port.transport_medium)
-        com_port.port_fd = open (port_name, O_RDWR | O_SYNC | O_NONBLOCK);
-    else
-        com_port.port_fd = open (port_name, O_RDWR | O_SYNC);
+    if (USING_SDIO == com_port.transport_medium){
+        	//com_port.port_fd = open (port_name, O_RDWR | O_SYNC | O_NONBLOCK);
+		for(i=0; i<9; i++)
+		{
+			sprintf(tPath, "/dev/ttyUSB%d", i);
+			com_port.port_fd = open (tPath, O_RDWR | O_SYNC | O_NONBLOCK);
+			if (com_port.port_fd < 0) 
+				dbg(LOG_ERROR, "open serial port:%s fail\n", tPath);
+				//return -1;
+			else
+				break;	
+
+		}
+		//dbg (LOG_ERROR, "open serial port:%s succeed\n", tPath);
+
+    	}else{
+        	//com_port.port_fd = open (port_name, O_RDWR | O_SYNC);
+		for(i=0; i<9; i++)
+		{
+			sprintf(tPath, "/dev/ttyUSB%d", i);
+			com_port.port_fd = open (tPath, O_RDWR | O_SYNC);
+			if (com_port.port_fd < 0) 
+				dbg(LOG_ERROR, "open serial port:%s fail\n", tPath);
+				//return -1;
+			else
+				break;	
+
+		}
+		//dbg (LOG_ERROR, "open serial port:%s succeed\n", tPath);
+	}
 
     if (INVALID_PORT_HANDLE_VALUE == com_port.port_fd)
         return false;
+    //else
+	dbg(LOG_ERROR, "open serial port:%s succeed\n", tPath);
 
     if (USING_UART == com_port.transport_medium && true == using_tty_device) {
         dbg(LOG_INFO, "\nUSING UART DETECTED pPort='%s'",port_name);
@@ -192,6 +222,7 @@ bool port_connect (char *port_name)
             return false;
         }
     }
+	dbg(LOG_ERROR, "open serial port:%s succeed\n", tPath);
 #endif
 
 	return true;

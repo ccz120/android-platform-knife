@@ -12,6 +12,10 @@ LDFLAGS += -lrt
 $(TARGET_EXE):$(OBJ);$(CC) -o $@ $^ $(LDFLAGS)
 $(filter %.o,$(OBJ)):%.o:%.c;$(CC) $(CFLAGS) -c -o $@ $<
 
+.PHONY:install
+install:
+	 cp -rf $(TARGET_EXE) ../../output/bin/
+
 .PHONY:clean
 clean:
 	 rm -f $(OBJ) $(TARGET_EXE)

@@ -4032,8 +4032,8 @@ int main (int argc, char *argv[])
     {
         if (NULL == port_name || strlen (port_name) == 0)
         {
-            dbg (LOG_ERROR, "Port device name not specified; Example: --port=\\\\.\\COM19 ");
-            ExitAndShowLog (1);
+            dbg (LOG_DEBUG, "Port device name not specified; Example: --port=\\\\.\\COM19 ");
+            //ExitAndShowLog (1);
         }
 
         dbg (LOG_INFO, "User wants to talk to port '%s'", port_name);
@@ -5184,11 +5184,13 @@ unsigned int OpenPort (char *pData)
     struct timeval time_start, time_end;
     double Elapsed;
     gettimeofday (&time_start, NULL);
+    unsigned int i;
+    char tPath[32];
 
     if (pData == NULL || strlen (pData) == 0)
     {
-        dbg (LOG_ERROR, "Port to open was not specified. Please use --port= option\n\n");
-        ExitAndShowLog (1);
+        dbg (LOG_DEBUG, "Port to open was not specified. Please use --port= option\n\n");
+        //ExitAndShowLog (1);
     }
 
 #ifdef _MSC_VER // i.e. if compiling under Windows
@@ -5208,6 +5210,21 @@ unsigned int OpenPort (char *pData)
     }
 
 #else
+
+#if 1
+	for(i=0; i<9; i++)
+	{
+		sprintf(tPath, "/dev/ttyUSB%d", i);
+		port_fd = open (tPath, O_RDWR | O_SYNC);
+		if (port_fd < 0) 
+			dbg (LOG_ERROR, "open serial port:%s fail\n", tPath);
+			//return -1;
+		else
+			break;	
+
+	}
+	dbg (LOG_DEBUG, "open serial port:%s succeed\n", tPath);
+#else
     port_fd = open (pData, O_RDWR | O_SYNC);
 
     if (port_fd == -1)
@@ -5215,6 +5232,7 @@ unsigned int OpenPort (char *pData)
         dbg (LOG_ERROR, "Could not open '%s'\n", pData);
         return 1;
     }
+#endif
 
 #endif
 
