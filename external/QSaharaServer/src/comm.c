@@ -79,8 +79,8 @@ bool port_connect (char *port_name)
 #endif
 
     if (NULL == port_name || port_name[0] == '\0') {
-        dbg(LOG_ERROR, "NULL port name");
-        dbg(LOG_ERROR, "Should be a COM port on windows (\\.\\COMx)\n"
+        printf("NULL port name");
+        printf("Should be a COM port on windows (\\.\\COMx)\n"
                        "or a device file on Linux (/dev/ttyUSB0)");
         //return false;
     }
@@ -162,7 +162,7 @@ bool port_connect (char *port_name)
 			sprintf(tPath, "/dev/ttyUSB%d", i);
 			com_port.port_fd = open (tPath, O_RDWR | O_SYNC);
 			if (com_port.port_fd < 0) 
-				dbg(LOG_ERROR, "open serial port:%s fail\n", tPath);
+				printf("open serial port:%s fail\n", tPath);
 				//return -1;
 			else
 				break;	
@@ -173,8 +173,8 @@ bool port_connect (char *port_name)
 
     if (INVALID_PORT_HANDLE_VALUE == com_port.port_fd)
         return false;
-    //else
-	dbg(LOG_ERROR, "open serial port:%s succeed\n", tPath);
+    else
+	printf("open serial port:%s succeed\n", tPath);
 
     if (USING_UART == com_port.transport_medium && true == using_tty_device) {
         dbg(LOG_INFO, "\nUSING UART DETECTED pPort='%s'",port_name);
@@ -222,7 +222,6 @@ bool port_connect (char *port_name)
             return false;
         }
     }
-	dbg(LOG_ERROR, "open serial port:%s succeed\n", tPath);
 #endif
 
 	return true;
