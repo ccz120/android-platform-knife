@@ -5217,13 +5217,13 @@ unsigned int OpenPort (char *pData)
 		sprintf(tPath, "/dev/ttyUSB%d", i);
 		port_fd = open (tPath, O_RDWR | O_SYNC);
 		if (port_fd < 0) 
-			dbg (LOG_ERROR, "open serial port:%s fail\n", tPath);
+			dbg (LOG_INFO, "open serial port:%s fail\n", tPath);
 			//return -1;
 		else
 			break;	
 
 	}
-	dbg (LOG_DEBUG, "open serial port:%s succeed\n", tPath);
+	dbg (LOG_INFO, "open serial port:%s succeed\n", tPath);
 #else
     port_fd = open (pData, O_RDWR | O_SYNC);
 
@@ -5236,7 +5236,7 @@ unsigned int OpenPort (char *pData)
 
 #endif
 
-    dbg (LOG_DEBUG, "port_fd=0x%X\n", port_fd);
+    dbg (LOG_INFO, "port_fd=0x%X\n", port_fd);
 
 
     gettimeofday (&time_end, NULL);
